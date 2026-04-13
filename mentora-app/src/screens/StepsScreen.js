@@ -204,6 +204,7 @@ function CalorieCard({ steps, weight }) {
 export default function StepsScreen({ navigation }) {
   const { profile, appState, saveAppSection } = useApp();
   const [pedometerAvailable, setPedometerAvailable] = useState(false);
+  const [motionPermissionDenied, setMotionPermissionDenied] = useState(false);
   const [todaySteps, setTodaySteps] = useState(0);
   const [activeTab, setActiveTab] = useState('day'); // day | week | month
   const [weekData, setWeekData] = useState([0, 0, 0, 0, 0, 0, 0]);
@@ -225,6 +226,7 @@ export default function StepsScreen({ navigation }) {
     return new Date(next.getTime() - offset).toISOString().split('T')[0];
   };
   const todayKey = () => toLocalDateKey(new Date());
+  const getStoredTodaySteps = () => stepsState.byDate?.[todayKey()] ?? stepsState.today ?? 0;
 
   // ── Save steps to storage ──
   const saveSteps = async (steps) => {
@@ -299,34 +301,59 @@ export default function StepsScreen({ navigation }) {
 
   const syncStepsFromSensor = async () => {
     subscriptionRef.current?.remove();
+    const permission = await Pedometer.getPermissionsAsync();
+    let granted = permission.granted;
+
+    if (!granted && permission.canAskAgain) {
+      const requested = await Pedometer.requestPermissionsAsync();
+      granted = requested.granted;
+    }
+
+    setMotionPermissionDenied(!granted);
+
+    if (!granted) {
+      setPedometerAvailable(false);
+      setTodaySteps(getStoredTodaySteps());
+      return;
+    }
+
     const avail = await Pedometer.isAvailableAsync();
     setPedometerAvailable(avail);
 
     if (!avail) {
       // Load saved steps if sensor unavailable
-      setTodaySteps(stepsState.byDate?.[todayKey()] ?? stepsState.today ?? 0);
+      setTodaySteps(getStoredTodaySteps());
       return;
     }
 
-    // Get steps since midnight today
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    const end = new Date();
+    const storedTodaySteps = getStoredTodaySteps();
+    sensorBaseRef.current = storedTodaySteps;
+    setTodaySteps(storedTodaySteps);
 
     try {
-      const result = await Pedometer.getStepCountAsync(start, end);
-      sensorBaseRef.current = result.steps;
-      setTodaySteps(result.steps);
-      await saveSteps(result.steps);
-      await loadWeekData();
-      await loadMonthData();
-    } catch (e) {}
+      if (Platform.OS === 'ios') {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const end = new Date();
+        const result = await Pedometer.getStepCountAsync(start, end);
+        sensorBaseRef.current = result.steps;
+        setTodaySteps(result.steps);
+        await saveSteps(result.steps);
+        await loadWeekData();
+        await loadMonthData();
+      }
+    } catch (e) {
+      setTodaySteps(storedTodaySteps);
+    }
 
     // Live step updates
     const sub = Pedometer.watchStepCount(result => {
       const newSteps = sensorBaseRef.current + result.steps;
-      setTodaySteps(newSteps);
-      saveSteps(newSteps);
+      setTodaySteps(prev => {
+        const resolved = Math.max(prev, newSteps);
+        saveSteps(resolved);
+        return resolved;
+      });
     });
     subscriptionRef.current = sub;
   };

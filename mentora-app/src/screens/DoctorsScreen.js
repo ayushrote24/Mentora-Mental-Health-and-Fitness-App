@@ -514,8 +514,8 @@ const styles = StyleSheet.create({
 
   specSection: { padding: 16, paddingBottom: 8 },
   specTitle: { fontSize: 13, fontWeight: '700', color: '#8A8A8A', letterSpacing: 1, marginBottom: 12, textTransform: 'uppercase' },
-  specGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  specCard: { width: (width - 52) / 3, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, alignItems: 'center', borderWidth: 1.5, borderColor: '#E0D8CF', elevation: 2, shadowColor:'#000', shadowOffset:{width:0,height:2}, shadowOpacity:0.06, shadowRadius:6 },
+  specGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  specCard: { width: '31.5%', marginBottom: 10, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, alignItems: 'center', borderWidth: 1.5, borderColor: '#E0D8CF', elevation: 2, shadowColor:'#000', shadowOffset:{width:0,height:2}, shadowOpacity:0.06, shadowRadius:6 },
   specEmoji: { fontSize: 28, marginBottom: 6 },
   specLabel: { fontSize: 11, color: '#2C2C2C', textAlign: 'center', fontWeight: '500', lineHeight: 15 },
 

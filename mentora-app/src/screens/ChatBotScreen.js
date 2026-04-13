@@ -7,7 +7,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '../context/AppContext';
 import { apiClient } from '../config/api';
-import { GEMINI_API_KEY } from '../config/apiKeys';
 import { BrandMark } from '../components/BrandMark';
 
 const { width } = Dimensions.get('window');
@@ -88,56 +87,8 @@ GUIDELINES:
 19. Prefer clarity over length; do not produce unnecessarily long answers`;
 }
 
-async function requestGeminiReply({ message, profile, healthData, history }) {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_KEY_HERE') {
-    throw new Error('Gemini API key is not configured.');
-  }
-
-  const safeHistory = history
-    .slice(-8)
-    .map((entry) => `${entry.role === 'user' ? 'User' : 'Assistant'}: ${entry.text}`)
-    .join('\n');
-
-  const prompt = [
-    buildSystemPrompt(profile, healthData),
-    safeHistory ? `Recent conversation:\n${safeHistory}` : '',
-    `User: ${message}`,
-  ].filter(Boolean).join('\n\n');
-
-  let lastError = null;
-
-  for (const model of GEMINI_MODELS) {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: prompt }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 900,
-          },
-        }),
-      }
-    );
-
-    const payload = await response.json();
-    if (response.ok) {
-      const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      if (text) {
-        return text;
-      }
-    } else {
-      lastError = new Error(payload?.error?.message || `Assistant request failed for ${model}.`);
-    }
-  }
-  throw lastError || new Error('Assistant request failed.');
+async function requestGeminiReply() {
+  throw new Error('Chatbot replies are now served by the backend. Please verify EXPO_PUBLIC_API_URL and the Render GEMINI_API_KEY.');
 }
 
 function TypingIndicator() {
@@ -270,6 +221,28 @@ export default function ChatBotScreen({ navigation }) {
     sendMessage(`My mood today is ${m.emoji} ${m.label}.`);
   };
 
+  const extractChatErrorMessage = (error) => {
+    if (error.code === 'ECONNABORTED') {
+      return 'The server took too long to respond. Render may be waking up, so please try again in a few seconds.';
+    }
+
+    if (!error.response) {
+      return 'Unable to reach the server. Please check your internet connection and confirm EXPO_PUBLIC_API_URL points to the Render backend.';
+    }
+
+    const backendMessage = error.response?.data?.message;
+
+    if (backendMessage?.includes('Gemini API key is not configured')) {
+      return 'The backend is live, but GEMINI_API_KEY is missing on Render.';
+    }
+
+    if (error.response?.status >= 500) {
+      return backendMessage || 'The server had a problem while generating a reply.';
+    }
+
+    return backendMessage || error.message || 'Something went wrong while sending your message.';
+  };
+
   const sendMessage = async (text) => {
     const msgText = text || input.trim();
     if (!msgText || loading) return;
@@ -285,21 +258,17 @@ export default function ChatBotScreen({ navigation }) {
     }));
 
     try {
-      const response = await apiClient.post('/integrations/assistant/chat', {
+      const response = await apiClient.post('/assistant/chat', {
         message: msgText,
         profile,
         healthData,
         history: nextHistory.slice(-8),
+      }, {
+        timeout: 45000,
       });
-      let botText = response.data?.data?.text;
-      if (!botText) {
-        botText = await requestGeminiReply({
-          message: msgText,
-          profile,
-          healthData,
-          history: nextHistory,
-        });
-      }
+      const botText =
+        response.data?.data?.text ||
+        "I'm having trouble responding right now. Please try again in a moment.";
       const updatedMessages = [...nextHistory, { role: 'bot', text: botText, ts: Date.now() }];
       setMessages(updatedMessages);
       saveAppSection('chat', prev => ({

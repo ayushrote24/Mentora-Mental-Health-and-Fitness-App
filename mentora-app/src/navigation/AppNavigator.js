@@ -2,9 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BrandMark } from '../components/BrandMark';
+import { useApp } from '../context/AppContext';
 
 import LoginScreen        from '../screens/LoginScreen';
 import OnboardScreen      from '../screens/OnboardScreen';
@@ -67,18 +68,41 @@ function MainTabs() {
 }
 
 export default function AppNavigator() {
+  const { user, profile, appStateLoaded } = useApp();
+
+  if (!appStateLoaded) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF7F2', gap: 16 }}>
+        <BrandMark size={72} />
+        <ActivityIndicator size="large" color="#7C9E87" />
+        <Text style={{ color: '#8A8A8A', fontSize: 14 }}>Restoring your session...</Text>
+      </View>
+    );
+  }
+
+  const isSignedIn = Boolean(user);
+  const needsOnboarding = isSignedIn && !profile?.onboardingCompleted;
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false, animationEnabled: true }}>
-        <Stack.Screen name="Login"        component={LoginScreen} />
-        <Stack.Screen name="Onboard"      component={OnboardScreen} />
-        <Stack.Screen name="Main"         component={MainTabs} />
-        <Stack.Screen name="ChatBot"      component={ChatBotScreen} />
-        <Stack.Screen name="Articles"     component={ArticlesScreen} />
-        <Stack.Screen name="Reminders"    component={RemindersScreen} />
-        <Stack.Screen name="Doctors"      component={DoctorsScreen} />
-        <Stack.Screen name="Steps"        component={StepsScreen} />
-        <Stack.Screen name="FemaleHealth" component={FemaleHealthScreen} />
+        {!isSignedIn ? (
+          <Stack.Screen name="Login" component={LoginScreen} />
+        ) : needsOnboarding ? (
+          <Stack.Screen name="Onboard" component={OnboardScreen} />
+        ) : (
+          <>
+            <Stack.Screen name="Main"         component={MainTabs} />
+            <Stack.Screen name="ChatBot"      component={ChatBotScreen} />
+            <Stack.Screen name="Articles"     component={ArticlesScreen} />
+            <Stack.Screen name="Reminders"    component={RemindersScreen} />
+            <Stack.Screen name="Doctors"      component={DoctorsScreen} />
+            <Stack.Screen name="Steps"        component={StepsScreen} />
+            <Stack.Screen name="FemaleHealth" component={FemaleHealthScreen} />
+            <Stack.Screen name="Onboard"      component={OnboardScreen} />
+            <Stack.Screen name="Login"        component={LoginScreen} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

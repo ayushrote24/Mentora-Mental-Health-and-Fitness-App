@@ -37,7 +37,6 @@ export default function LoginScreen({ navigation }) {
       });
 
       login(res.data.data);
-      navigation.replace(res.data.data?.user?.onboardingCompleted ? 'Main' : 'Onboard');
     } catch (err) {
       console.log('ERROR:', err.response?.data || err.message);
       const serverMessage = err.response?.data?.message;
@@ -70,7 +69,6 @@ export default function LoginScreen({ navigation }) {
       });
 
       login(res.data.data);
-      navigation.replace('Onboard');
     } catch (err) {
       console.log('ERROR:', err.response?.data || err.message);
       const serverMessage = err.response?.data?.message;

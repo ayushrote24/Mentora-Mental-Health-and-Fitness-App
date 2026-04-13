@@ -14,6 +14,7 @@
     "android": {
       "usesCleartextTraffic": false,
       "permissions": [
+        "ACTIVITY_RECOGNITION",
         "POST_NOTIFICATIONS",
         "VIBRATE"
       ],
@@ -26,6 +27,7 @@
     "ios": {
       "bundleIdentifier": "com.mentora.app",
       "infoPlist": {
+        "NSMotionUsageDescription": "Mentora uses motion activity to track your daily step count.",
         "NSUserNotificationsUsageDescription": "Mentora uses notifications for medication, wellness, sleep, and daily reminder alerts."
       }
     },
@@ -42,7 +44,7 @@
     "extra": {
       "apiBaseUrl": "https://mentora-mental-health-and-fitness-app.onrender.com",
       "eas": {
-        "projectId": "28568068-1efe-4b2a-a685-3b49efbc8160"
+        "projectId": "86edf528-115d-4d0b-aeb5-ec7e7048ec66"
       }
     }
   }

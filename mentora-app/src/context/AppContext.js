@@ -107,24 +107,104 @@ export const AppProvider = ({ children }) => {
   const [appStateLoaded, setAppStateLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem('mentora_settings').then(v => { if (v) setSettings(JSON.parse(v)); });
-    AsyncStorage.getItem('mentora_profile').then(v => { if (v) setProfile(JSON.parse(v)); });
-    AsyncStorage.getItem('mentora_user').then(v => { if (v) setUser(JSON.parse(v)); });
-    AsyncStorage.getItem('mentora_auth').then(v => {
-      if (!v) return;
-      const auth = JSON.parse(v);
-      setAuthToken(auth.accessToken || null);
-      setRefreshToken(auth.refreshToken || null);
-    });
-    AsyncStorage.getItem('mentora_app_state').then(v => {
-      if (!v) {
-        setAppStateLoaded(true);
-        return;
-      }
+    const bootstrapApp = async () => {
+      try {
+        const entries = await AsyncStorage.multiGet([
+          'mentora_settings',
+          'mentora_profile',
+          'mentora_user',
+          'mentora_auth',
+          'mentora_app_state',
+        ]);
 
-      setAppState(mergeAppState(JSON.parse(v)));
-      setAppStateLoaded(true);
-    });
+        const store = Object.fromEntries(entries);
+        const storedSettings = store.mentora_settings ? JSON.parse(store.mentora_settings) : null;
+        const storedProfile = store.mentora_profile ? JSON.parse(store.mentora_profile) : null;
+        const storedUser = store.mentora_user ? JSON.parse(store.mentora_user) : null;
+        const storedAuth = store.mentora_auth ? JSON.parse(store.mentora_auth) : null;
+        const storedAppState = store.mentora_app_state ? JSON.parse(store.mentora_app_state) : null;
+
+        if (storedSettings) {
+          setSettings(storedSettings);
+        }
+        if (storedProfile) {
+          setProfile({ ...defaultProfile, ...storedProfile });
+        }
+        if (storedUser) {
+          setUser(storedUser);
+        }
+        if (storedAppState) {
+          setAppState(mergeAppState(storedAppState));
+        }
+
+        const storedAccessToken = storedAuth?.accessToken || null;
+        const storedRefreshToken = storedAuth?.refreshToken || null;
+
+        if (storedRefreshToken) {
+          try {
+            const response = await apiClient.post('/auth/refresh', {
+              refreshToken: storedRefreshToken,
+            });
+
+            const refreshedUser = response.data?.data?.user || storedUser;
+            const refreshedTokens = {
+              ...storedAuth,
+              accessToken: response.data?.data?.accessToken || storedAccessToken,
+              refreshToken: storedRefreshToken,
+            };
+
+            setAuthToken(refreshedTokens.accessToken || null);
+            setRefreshToken(refreshedTokens.refreshToken || null);
+            await AsyncStorage.setItem('mentora_auth', JSON.stringify(refreshedTokens));
+
+            if (refreshedUser) {
+              const nextUser = {
+                id: refreshedUser.id,
+                name: refreshedUser.name,
+                email: refreshedUser.email,
+              };
+              setUser(nextUser);
+              await AsyncStorage.setItem('mentora_user', JSON.stringify(nextUser));
+
+              const nextProfile = {
+                ...defaultProfile,
+                ...(storedProfile || {}),
+                ...refreshedUser,
+              };
+              setProfile(nextProfile);
+              await AsyncStorage.setItem('mentora_profile', JSON.stringify(nextProfile));
+            }
+          } catch (error) {
+            const shouldClearSession = error?.response?.status === 401;
+
+            if (shouldClearSession && (storedUser || storedAccessToken || storedRefreshToken)) {
+              await AsyncStorage.multiRemove([
+                'mentora_user',
+                'mentora_auth',
+                'mentora_profile',
+                'mentora_settings',
+                'mentora_app_state',
+              ]);
+              setUser(null);
+              setProfile(defaultProfile);
+              setSettings(defaultSettings);
+              setAuthToken(null);
+              setRefreshToken(null);
+              setAppState(defaultAppState);
+            } else {
+              setAuthToken(storedAccessToken);
+              setRefreshToken(storedRefreshToken);
+            }
+          }
+        } else if (storedAccessToken) {
+          setAuthToken(storedAccessToken);
+        }
+      } finally {
+        setAppStateLoaded(true);
+      }
+    };
+
+    bootstrapApp();
   }, []);
 
   useEffect(() => {

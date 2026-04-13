@@ -7,7 +7,7 @@ let resolvedApiBase = normalizeApiBase(API_BASE);
 
 export const apiClient = axios.create({
   baseURL: resolvedApiBase,
-  timeout: 10000,
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json',
   },
