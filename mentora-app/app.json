@@ -40,7 +40,7 @@
       ]
     ],
     "extra": {
-      "apiBaseUrl": "https://your-backend.onrender.com",
+      "apiBaseUrl": "https://mentora-mental-health-and-fitness-app.onrender.com",
       "eas": {
         "projectId": "28568068-1efe-4b2a-a685-3b49efbc8160"
       }

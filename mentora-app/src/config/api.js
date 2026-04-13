@@ -13,6 +13,14 @@ export const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.log('API ERROR:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
 export const setApiBaseUrl = (nextBase) => {
   const normalized = normalizeApiBase(nextBase);
   if (!normalized) {
@@ -29,6 +37,10 @@ export const getApiBaseUrl = () => resolvedApiBase;
 export const ensureApiBaseUrl = async () => {
   if (!resolvedApiBase) {
     throw new Error('EXPO_PUBLIC_API_URL is missing.');
+  }
+
+  if (!/^https?:\/\//i.test(resolvedApiBase)) {
+    throw new Error(`Invalid API base URL: ${resolvedApiBase}`);
   }
 
   return resolvedApiBase;

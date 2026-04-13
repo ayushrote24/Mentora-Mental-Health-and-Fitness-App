@@ -3,9 +3,11 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, Alert
 } from 'react-native';
+import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApp } from '../context/AppContext';
-import { apiClient, ensureApiBaseUrl, getApiBaseUrl } from '../config/api';
+import { ensureApiBaseUrl, getApiBaseUrl } from '../config/api';
+import { API } from '../config/apiKeys';
 import { BrandMark } from '../components/BrandMark';
 
 const COLORS = {
@@ -27,14 +29,17 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
       await ensureApiBaseUrl();
-      const res = await apiClient.post('/auth/login', {
+      const res = await axios.post(`${API}/auth/login`, {
         email: email.trim().toLowerCase(),
         password,
+      }, {
+        headers: { 'Content-Type': 'application/json' },
       });
 
       login(res.data.data);
       navigation.replace(res.data.data?.user?.onboardingCompleted ? 'Main' : 'Onboard');
     } catch (err) {
+      console.log('ERROR:', err.response?.data || err.message);
       const serverMessage = err.response?.data?.message;
       const detailMessage = err.response?.data?.details;
       const networkHint = !err.response
@@ -56,15 +61,18 @@ export default function LoginScreen({ navigation }) {
     try {
       setLoading(true);
       await ensureApiBaseUrl();
-      const res = await apiClient.post('/auth/register', {
+      const res = await axios.post(`${API}/auth/register`, {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,
+      }, {
+        headers: { 'Content-Type': 'application/json' },
       });
 
       login(res.data.data);
       navigation.replace('Onboard');
     } catch (err) {
+      console.log('ERROR:', err.response?.data || err.message);
       const serverMessage = err.response?.data?.message;
       const detailMessage = err.response?.data?.details;
       const networkHint = !err.response

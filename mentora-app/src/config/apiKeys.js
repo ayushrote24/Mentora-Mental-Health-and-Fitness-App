@@ -1,7 +1,7 @@
 const normalizeBaseUrl = (value) => (value || '').trim().replace(/\/+$/, '');
 
 export const BASE_URL = normalizeBaseUrl(
-  process.env.EXPO_PUBLIC_API_URL || 'https://your-backend.onrender.com'
+  process.env.EXPO_PUBLIC_API_URL || 'https://mentora-mental-health-and-fitness-app.onrender.com'
 );
 
 export const API = `${BASE_URL}/api`;
