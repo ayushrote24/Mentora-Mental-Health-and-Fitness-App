@@ -1,0 +1,63 @@
+{
+  "users": [
+    {
+      "id": "1424678d-db05-4d79-a5ec-9df7d2a6c648",
+      "role": "user",
+      "settings": {
+        "notifications": true,
+        "soundEnabled": true,
+        "vibrationEnabled": true,
+        "dataSync": true,
+        "privacyMode": true
+      },
+      "name": "Smoke User",
+      "email": "smoke-1775113179438@mentora.dev",
+      "password": "$2a$10$a89DfjTCqBVSMqnqqJ2N0O6cP5SgiATf3YhIaZDmfe4mMabOnMz96",
+      "sex": "",
+      "height": 165,
+      "weight": 65,
+      "stepsGoal": 8000,
+      "lastPeriodDay": null,
+      "periodDuration": 5,
+      "cycleLength": 28,
+      "createdAt": "2026-04-02T06:59:39.522Z",
+      "updatedAt": "2026-04-02T06:59:39.522Z"
+    },
+    {
+      "id": "b186c397-1f23-451e-a36e-c663445b1ea3",
+      "role": "user",
+      "settings": {
+        "notifications": true,
+        "soundEnabled": true,
+        "vibrationEnabled": true,
+        "dataSync": true,
+        "privacyMode": true
+      },
+      "name": "Smoke User",
+      "email": "smoke.1775139655927@gmail.com",
+      "password": "$2a$10$5H6zy6/Uo32Yp1kYlGBU/uVrcb89NNCXO8B.aTBvHvGRoPL1b4oZS",
+      "sex": "",
+      "height": 165,
+      "weight": 65,
+      "stepsGoal": 8000,
+      "lastPeriodDay": null,
+      "periodDuration": 5,
+      "cycleLength": 28,
+      "createdAt": "2026-04-02T14:20:56.016Z",
+      "updatedAt": "2026-04-02T14:20:56.016Z"
+    }
+  ],
+  "refreshTokens": [
+    {
+      "token": "d15173b85921839ee5b5fca6358851a701535c1e88bf8215f9d2de743ab6a497478c14f56af03f2699fdd5d976e16329",
+      "userId": "1424678d-db05-4d79-a5ec-9df7d2a6c648",
+      "expiresAt": "2026-05-02T06:59:39.529Z"
+    },
+    {
+      "token": "209d05cca052c2eef7bda9aca6d59305d88034d112799ba64da5fe799f02475ef9c168d568ecb033fce4f63f78ea0c75",
+      "userId": "b186c397-1f23-451e-a36e-c663445b1ea3",
+      "expiresAt": "2026-05-02T14:20:56.021Z"
+    }
+  ],
+  "appStates": {}
+}

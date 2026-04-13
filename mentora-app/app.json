@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Mentora",
+    "slug": "mentora",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAF7F2"
+    },
+    "android": {
+      "usesCleartextTraffic": false,
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "VIBRATE"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#7C9E87"
+      },
+      "package": "com.mentora.app"
+    },
+    "ios": {
+      "bundleIdentifier": "com.mentora.app",
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "Mentora uses notifications for medication, wellness, sleep, and daily reminder alerts."
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#7C9E87",
+          "defaultChannel": "reminders"
+        }
+      ]
+    ],
+    "extra": {
+      "apiBaseUrl": "https://your-backend.onrender.com",
+      "eas": {
+        "projectId": "28568068-1efe-4b2a-a685-3b49efbc8160"
+      }
+    }
+  }
+}
