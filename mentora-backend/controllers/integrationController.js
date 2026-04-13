@@ -36,9 +36,11 @@ const getNearbyDoctors = async (req, res, next) => {
     }
 
     if (!env.googlePlacesApiKey) {
-      return res.status(503).json({
-        success: false,
-        message: 'Google Places API key is not configured on the backend.',
+      console.warn('Google Places API key missing, skipping nearby doctors lookup.');
+      return res.json({
+        success: true,
+        message: 'Google Places disabled in this environment.',
+        data: [],
       });
     }
 

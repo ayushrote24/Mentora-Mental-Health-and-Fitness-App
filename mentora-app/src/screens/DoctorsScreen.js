@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { GOOGLE_PLACES_API_KEY } from '../config/apiKeys';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, ActivityIndicator, Linking, Alert, Dimensions,
@@ -232,7 +231,6 @@ export default function DoctorsScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
   const [usingMockData, setUsingMockData] = useState(false);
 
-  const PLACES_API_KEY = GOOGLE_PLACES_API_KEY;
   const savedDoctorsState = appState?.doctors?.saved || [];
 
   useEffect(() => {
@@ -292,14 +290,8 @@ export default function DoctorsScreen({ navigation }) {
         });
         results = response.data.data || [];
       } catch (backendError) {
-        if (PLACES_API_KEY === 'YOUR_GOOGLE_PLACES_KEY_HERE') {
-          throw backendError;
-        }
-        const query = encodeURIComponent(spec.query);
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=5000&keyword=${query}&type=doctor&key=${PLACES_API_KEY}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        results = data.results || [];
+        console.log('Doctors lookup fallback:', backendError.response?.data || backendError.message);
+        results = [];
       }
 
       if (results.length > 0) {

@@ -13,14 +13,6 @@ export const apiClient = axios.create({
   },
 });
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.log('API ERROR:', error.response?.data || error.message);
-    return Promise.reject(error);
-  }
-);
-
 export const setApiBaseUrl = (nextBase) => {
   const normalized = normalizeApiBase(nextBase);
   if (!normalized) {
