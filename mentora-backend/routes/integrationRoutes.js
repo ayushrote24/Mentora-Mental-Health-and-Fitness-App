@@ -6,7 +6,8 @@ const {
   chatWithAssistant,
 } = require('../controllers/integrationController');
 
-router.use(authMiddleware);
+router.get('/doctors/nearby', authMiddleware, getNearbyDoctors);
+router.post('/assistant/chat', chatWithAssistant); // no auth
 
 router.get('/doctors/nearby', getNearbyDoctors);
 router.post('/assistant/chat', chatWithAssistant);

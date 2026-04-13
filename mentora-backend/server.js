@@ -1,7 +1,11 @@
 const { createApp } = require('./app');
 const { env } = require('./config/env');
 const { initializeDatabase } = require('./config/database');
+const chatRoutes = require('./routes/chatRoutes');
+const integrationRoutes = require('./routes/integrationRoutes');
 
+app.use('/api', integrationRoutes);
+app.use('/api', chatRoutes);
 const startServer = async () => {
   try {
     const database = await initializeDatabase();

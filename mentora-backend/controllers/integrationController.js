@@ -85,6 +85,7 @@ const chatWithAssistant = async (req, res, next) => {
     if (!env.geminiApiKey) {
       const error = new Error('Gemini API key is not configured on the backend.');
       error.statusCode = 503;
+      error.expose = true;
       throw error;
     }
 
@@ -159,6 +160,7 @@ const chatWithAssistant = async (req, res, next) => {
       } else {
         lastError = new Error(payload?.error?.message || `Assistant request failed for ${model}.`);
         lastError.statusCode = response.status || 502;
+        lastError.expose = true;
       }
     }
     if (!text) {

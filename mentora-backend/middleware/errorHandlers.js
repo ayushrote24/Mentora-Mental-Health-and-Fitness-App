@@ -8,8 +8,9 @@ const notFoundHandler = (req, res) => {
 const errorHandler = (error, req, res, next) => {
   const statusCode = error.statusCode || 500;
   const isProduction = process.env.NODE_ENV === 'production';
+  const shouldExposeMessage = Boolean(error.expose);
   const message =
-    statusCode >= 500 && isProduction
+    statusCode >= 500 && isProduction && !shouldExposeMessage
       ? 'Something went wrong on the server.'
       : (error.message || 'Something went wrong on the server.');
 
